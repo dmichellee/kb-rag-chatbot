@@ -168,7 +168,7 @@ const titan_embedding_v2 = [  // dimension = 1024
 const LLM_for_chat = claude3_sonnet;
 const LLM_for_multimodal = claude3_sonnet;
 const LLM_embedding = titan_embedding_v2;
-const vectorIndexName = `knowledge-base-index-for-${projectName}`
+const vectorIndexName = projectName
 
 export class CdkManagedRagStack extends cdk.Stack {
   constructor(scope: Construct, id: string, props?: cdk.StackProps) {
@@ -249,7 +249,7 @@ export class CdkManagedRagStack extends cdk.Stack {
     );  
 
     // OpenSearch Serverless
-    const collectionName = projectName
+    const collectionName = vectorIndexName
     const OpenSearchCollection = new opensearchserverless.CfnCollection(this, `opensearch-correction-for-${projectName}`, {
       name: collectionName,    
       description: `opensearch correction for ${projectName}`,
@@ -264,8 +264,9 @@ export class CdkManagedRagStack extends cdk.Stack {
       description: 'The endpoint of opensearch correction',
     });
 
-    const encPolicy = new opensearchserverless.CfnSecurityPolicy(this, `opensearch-encription-security-policy`, {
-      name: `encription-policy`,
+    const encPolicyName = `encription-${projectName}`
+    const encPolicy = new opensearchserverless.CfnSecurityPolicy(this, `opensearch-encription-security-policy-for-${projectName}`, {
+      name: encPolicyName,
       type: "encryption",
       description: `opensearch encryption policy for ${projectName}`,
       policy:
@@ -273,16 +274,21 @@ export class CdkManagedRagStack extends cdk.Stack {
     });
     OpenSearchCollection.addDependency(encPolicy);
 
-    const netPolicy = new opensearchserverless.CfnSecurityPolicy(this, `opensearch-network-security-policy`, {
-      name: `network-policy`,
+    const netPolicyName = `network-${projectName}`
+    const netPolicy = new opensearchserverless.CfnSecurityPolicy(this, `opensearch-network-security-policy-for-${projectName}`, {
+      name: netPolicyName,
       type: 'network',    
       description: `opensearch network policy for ${projectName}`,
       policy: JSON.stringify([
         {
           Rules: [
             {
+              ResourceType: "dashboard",
+              Resource: [`collection/${netPolicyName}`],
+            },
+            {
               ResourceType: "collection",
-              Resource: ["collection/*"],              
+              Resource: [`collection/*`],              
             }
           ],
           AllowFromPublic: true,          
@@ -292,8 +298,9 @@ export class CdkManagedRagStack extends cdk.Stack {
     });
     OpenSearchCollection.addDependency(netPolicy);
 
+    const dataAccessPolicyName = `data-${projectName}`
     const dataAccessPolicy = new opensearchserverless.CfnAccessPolicy(this, `opensearch-data-collection-policy-for-${projectName}`, {
-      name: `data-collection-policy`,
+      name: dataAccessPolicyName,
       type: "data",
       policy: JSON.stringify([
         {
