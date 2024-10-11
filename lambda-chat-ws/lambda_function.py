@@ -149,11 +149,11 @@ def load_secrets():
         get_tavily_api_secret = secretsmanager.get_secret_value(
             SecretId=f"tavilyapikey-{projectName}"
         )
-        #print('get_tavily_api_secret: ', get_tavily_api_secret)
+        print('get_tavily_api_secret: ', get_tavily_api_secret)
         secret = json.loads(get_tavily_api_secret['SecretString'])
-        # print('secret: ', secret)
-        tavily_api_key = json.loads(secret['tavily_api_key'])
-        # print('tavily_api_key: ', tavily_api_key)
+        print('secret: ', secret)
+        tavily_api_key = secret['tavily_api_key']
+        print('tavily_api_key: ', tavily_api_key)
     except Exception as e: 
         raise e
     
@@ -168,7 +168,7 @@ def load_secrets():
 
     except Exception as e:
         raise e
-load_secrets()
+# load_secrets()
 
 def check_tavily_secret(tavily_api_key):
     query = 'what is LangGraph'
