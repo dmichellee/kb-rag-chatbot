@@ -787,7 +787,7 @@ def query_using_RAG_context(connectionId, requestId, chat, context, revised_ques
     if isKorean(revised_question)==True:
         system = (
             """다음의 <context> tag안의 참고자료를 이용하여 상황에 맞는 구체적인 세부 정보를 충분히 제공합니다. 모르는 질문을 받으면 솔직히 모른다고 말합니다.
-            
+            수평선(---)은 섹션 구분자입니다. 해당 수평선을 기준으로 앞, 뒤 내용은 서로 다른 문서의 내용으로 간주합니다.
             <context>
             {context}
             </context>"""
@@ -1442,7 +1442,7 @@ def initiate_knowledge_base():
                                     'maxTokens': 500
                                 }
                             ],
-                            'overlapTokens': 150
+                            'overlapTokens': 100
                         }
                     },
                     'parsingConfiguration': {
